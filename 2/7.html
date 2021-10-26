@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>body {margin: 0;}</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three';
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.00001, 100000000 );
+camera.position.set( 0, 1, 3 );
+const scene = new THREE.Scene();
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const gridHelper = new THREE.GridHelper( 5, 20 );
+scene.add( gridHelper );
+
+const mesh = new THREE.Mesh(
+	new THREE.BoxGeometry( 0.5, 0.5, 0.5 ),
+	new THREE.MeshNormalMaterial()
+);
+scene.add( mesh );
+
+const mesh2 = new THREE.Mesh(
+	new THREE.PlaneGeometry( 0.5, 0.5 ),
+	new THREE.MeshBasicMaterial( { side: THREE.DoubleSide } )
+);
+mesh2.position.set( 0, 0.25, 0.2501 );
+scene.add( mesh2 );
+
+function animation( time ) {
+
+	camera.position.set(
+		Math.sin( time * 0.0001 ) * 3,
+		1,
+		Math.cos( time * 0.0001 ) * 3,
+	);
+	camera.lookAt( 0, 0, 0 );
+	renderer.render( scene, camera );
+
+}
+
+</script>
+
+</body>
+</html>

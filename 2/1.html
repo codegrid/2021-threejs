@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>body {margin: 0;}</style>
+</head>
+<body>
+
+<select id="select" style="position: absolute;">
+	<option value="0">PerspectiveCamera</option>
+	<option value="1">OrthographicCamera</option>
+</select>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three';
+
+const width = window.innerWidth;
+const height = window.innerHeight;
+const aspect = width / height;
+const fovY = 90;
+const cameraZ = 3;
+const depth = Math.tan( fovY / 2 * THREE.MathUtils.DEG2RAD ) * 2;
+const frustumHeight = depth * cameraZ;
+const frustumWidth = depth * cameraZ * aspect;
+
+const pCamera = new THREE.PerspectiveCamera( fovY, aspect, 0.01, 10 );
+const oCamera = new THREE.OrthographicCamera( - frustumWidth / 2, frustumWidth / 2, frustumHeight / 2, - frustumHeight / 2, 0.01, 10 );
+const scene = new THREE.Scene();
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const gridHelper = new THREE.GridHelper( 5, 20 );
+scene.add( gridHelper );
+
+for ( let x = 0; x < 4; x ++ ) {
+	for ( let z = 0; z < 4; z ++ ) {
+
+		const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+		const material = new THREE.MeshNormalMaterial();
+		const mesh = new THREE.Mesh( geometry, material );
+		mesh.position.set( x - 1.5, 0.25, z - 1.5 );
+		scene.add( mesh );
+
+	}
+}
+
+let selectedCamera = pCamera;
+
+function animation( time ) {
+
+	selectedCamera.position.set(
+		Math.sin( time * 0.0001 ) * cameraZ,
+		1,
+		Math.cos( time * 0.0001 ) * cameraZ,
+	);
+	selectedCamera.lookAt( 0, 0, 0 );
+	renderer.render( scene, selectedCamera );
+
+}
+
+document.querySelector( '#select' ).addEventListener( 'change', ( event ) => {
+
+	selectedCamera = event.target.value === '0' ? pCamera : oCamera;
+
+} );
+</script>
+
+</body>
+</html>
