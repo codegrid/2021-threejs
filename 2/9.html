@@ -48,17 +48,17 @@ function animation( time ) {
 window.addEventListener( 'resize', () => {
 
 	const width = window.innerWidth;
-  const height = window.innerHeight;
+	const height = window.innerHeight;
 	const aspect = window.innerWidth / window.innerHeight;
 
-  renderer.setSize( width, height );
+	renderer.setSize( width, height );
 
 	const frustumWidth = frustumHeight * aspect;
 	camera.left = - frustumWidth / 2;
 	camera.right = frustumWidth / 2;
 	camera.top = frustumHeight / 2;
 	camera.bottom = - frustumHeight / 2;
-  camera.updateProjectionMatrix();
+	camera.updateProjectionMatrix();
 
 } );
 
