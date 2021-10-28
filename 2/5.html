@@ -35,7 +35,7 @@ scene.add( mesh );
 
 function animation( time ) {
 
-	camera.rotation.y = ( time * 0.0001 ) % 1;
+	camera.rotation.y = ( time * 0.001 * ( 3 * THREE.MathUtils.DEG2RAD ) ) % 1;
 	renderer.render( scene, camera );
 
 }
