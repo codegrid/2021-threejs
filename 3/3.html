@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>body {margin: 0;}</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.120.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.120.0/examples/jsm/controls/OrbitControls.js';
+import GUI from 'https://cdn.skypack.dev/lil-gui';
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 10 );
+camera.position.set( 0, 1, 3 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+
+const gridHelper = new THREE.GridHelper( 5, 10 );
+scene.add( gridHelper );
+
+const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+const material = new THREE.MeshNormalMaterial();
+const mesh = new THREE.Mesh( geometry, material );
+scene.add( mesh );
+
+function animation( time ) {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+const gui = new GUI();
+
+const controlsState = {
+	autoRotate : controls.autoRotate,
+	autoRotateSpeed : controls.autoRotateSpeed,
+	enableDamping : controls.enableDamping,
+	dampingFactor : controls.dampingFactor,
+	minDistance: controls.minDistance,
+	maxDistance : controls.maxDistance,
+	minAzimuthAngle : controls.minAzimuthAngle,
+	maxAzimuthAngle : controls.maxAzimuthAngle,
+	minPolarAngle: controls.minPolarAngle,
+	maxPolarAngle: controls.maxPolarAngle,
+	minZoom: controls.minZoom,
+	maxZoom : controls.maxZoom,
+	panSpeed : controls.panSpeed,
+	rotateSpeed : controls.rotateSpeed,
+	screenSpacePanning: controls.screenSpacePanning,
+	zoomSpeed: controls.zoomSpeed,
+};
+
+gui.add( controlsState, 'autoRotate' ).onChange( ( val ) => controls.autoRotate = val );
+gui.add( controlsState, 'autoRotateSpeed' ).onChange( ( val ) => controls.autoRotateSpeed = val );
+gui.add( controlsState, 'enableDamping' ).onChange( ( val ) => controls.enableDamping = val );
+gui.add( controlsState, 'dampingFactor', 0, 1 ).onChange( ( val ) => controls.dampingFactor = val );
+gui.add( controlsState, 'minDistance', 0 ).onChange( ( val ) => controls.minDistance = val );
+gui.add( controlsState, 'maxDistance', 0 ).onChange( ( val ) => controls.maxDistance = val );
+gui.add( controlsState, 'minAzimuthAngle' ).onChange( ( val ) => controls.minAzimuthAngle = val );
+gui.add( controlsState, 'maxAzimuthAngle' ).onChange( ( val ) => controls.maxAzimuthAngle = val );
+gui.add( controlsState, 'minPolarAngle', 0, Math.PI ).onChange( ( val ) => controls.minPolarAngle = val );
+gui.add( controlsState, 'maxPolarAngle', 0, Math.PI ).onChange( ( val ) => controls.maxPolarAngle = val );
+gui.add( controlsState, 'minZoom', 0 ).onChange( ( val ) => controls.minZoom = val );
+gui.add( controlsState, 'maxZoom' ).onChange( ( val ) => controls.maxZoom = val );
+gui.add( controlsState, 'panSpeed' ).onChange( ( val ) => controls.panSpeed = val );
+gui.add( controlsState, 'rotateSpeed' ).onChange( ( val ) => controls.rotateSpeed = val );
+gui.add( controlsState, 'zoomSpeed' ).onChange( ( val ) => controls.zoomSpeed = val );
+gui.add( controlsState, 'screenSpacePanning' ).onChange( ( val ) => controls.screenSpacePanning = val );
+
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0;}
+</style>
+</head>
+<body>
+<div style="position: absolute">
+	<button type="button" id="startButton">ポインターロックを開始（ESCキーで解除）</button><br>
+	W, A, S, Dまたは矢印キーで移動
+</div>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { PointerLockControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/PointerLockControls.js';
+
+const clock = new THREE.Clock();
+
+const renderer = new THREE.WebGLRenderer();
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 10 );
+camera.position.set( 0, 1, 3 );
+
+// カメラと <canvas> を引数にして、コントロールのインスタンスを作成
+const controls = new PointerLockControls( camera, renderer.domElement );
+
+const $startButton = document.querySelector( '#startButton' );
+const $forwardButton = document.querySelector( '#forwardButton' );
+const $rightButton = document.querySelector( '#rightButton' );
+
+controls.addEventListener( 'lock', function () {
+
+	$startButton.disabled = true;
+	console.log( 'ポインターがロックされました' );
+
+} );
+
+controls.addEventListener( 'unlock', function () {
+
+	$startButton.disabled = false;
+	console.log( 'ポインターのロックが解除されました' );
+
+} );
+
+$startButton.addEventListener( 'click', () => controls.lock() );
+
+document.addEventListener( 'keydown', ( event ) => {
+
+	switch ( event.code ) {
+
+		case 'ArrowUp':
+		case 'KeyW':
+			controls.moveForward( 0.1 );
+			break;
+
+		case 'ArrowDown':
+		case 'KeyS':
+			controls.moveForward( - 0.1 );
+			break;
+
+		case 'ArrowRight':
+		case 'KeyD':
+		controls.moveRight( 0.1 );
+			break;
+
+		case 'ArrowLeft':
+		case 'KeyA':
+			controls.moveRight( - 0.1 );
+			break;
+
+	}
+
+} );
+
+const gridHelper = new THREE.GridHelper( 5, 10 );
+scene.add( gridHelper );
+
+const geometry = new THREE.BoxGeometry( 0.5, 0.5, 0.5 );
+const material = new THREE.MeshNormalMaterial();
+const mesh = new THREE.Mesh( geometry, material );
+scene.add( mesh );
+
+function animation( time ) {
+
+	renderer.render( scene, camera );
+
+}
+</script>
+
+</body>
+</html>
