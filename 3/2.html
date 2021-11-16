@@ -35,7 +35,7 @@ const material = new THREE.MeshNormalMaterial();
 const mesh = new THREE.Mesh( geometry, material );
 scene.add( mesh );
 
-function animation( time ) {
+function animation() {
 
 	controls.update();
 	renderer.render( scene, camera );
