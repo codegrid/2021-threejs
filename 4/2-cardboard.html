@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0;}
+canvas{background: linear-gradient( #c9d6ff, #e2e2e2);}
+</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setClearColor( 0x000000, 0 );
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+camera.position.set( 0, 1.5, 3 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+
+const light0 = new THREE.DirectionalLight(0xFFFFFF, 1);
+const light1 = new THREE.HemisphereLight( 0x443333, 0x332222 );
+light0.color.convertSRGBToLinear();
+light0.position.set( 1, 1, 1 ).normalize();
+light1.color.convertSRGBToLinear();
+light1.groundColor.convertSRGBToLinear();
+scene.add( light0, light1 );
+
+const gridHelper = new THREE.GridHelper( 5, 10 );
+scene.add( gridHelper );
+
+function animation() {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+// global env map
+new THREE.TextureLoader().load( './env.jpg', ( equirectangularMap ) => {
+
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	pmremGenerator.compileEquirectangularShader();
+	const envMapRenderTarget = pmremGenerator.fromEquirectangular( equirectangularMap );
+	envMapRenderTarget.texture.encoding = THREE.sRGBEncoding;
+	equirectangularMap.dispose();
+
+	scene.environment = envMapRenderTarget.texture;
+
+} );
+
+// box
+const boxColorTexture = new THREE.TextureLoader().load( './cardboard/color.jpg' );
+boxColorTexture.encoding = THREE.sRGBEncoding;
+const boxNormalTexture = new THREE.TextureLoader().load( './cardboard/normal.jpg' );
+boxNormalTexture.encoding = THREE.sRGBEncoding;
+const boxRoughnessTexture = new THREE.TextureLoader().load( './cardboard/roughness.jpg' );
+boxRoughnessTexture.encoding = THREE.sRGBEncoding;
+
+const boxTopColorTexture = new THREE.TextureLoader().load( './cardboard/top-color.jpg' );
+boxTopColorTexture.encoding = THREE.sRGBEncoding;
+const boxTopNormalTexture = new THREE.TextureLoader().load( './cardboard/top-normal.jpg' );
+boxTopNormalTexture.encoding = THREE.sRGBEncoding;
+const boxTopRoughnessTexture = new THREE.TextureLoader().load( './cardboard/top-roughness.jpg' );
+boxTopRoughnessTexture.encoding = THREE.sRGBEncoding;
+
+const boxSideColorTexture = new THREE.TextureLoader().load( './cardboard/side-color.jpg' );
+boxSideColorTexture.encoding = THREE.sRGBEncoding;
+const boxSideNormalTexture = new THREE.TextureLoader().load( './cardboard/side-normal.jpg' );
+boxSideNormalTexture.encoding = THREE.sRGBEncoding;
+const boxSideRoughnessTexture = new THREE.TextureLoader().load( './cardboard/side-roughness.jpg' );
+boxSideRoughnessTexture.encoding = THREE.sRGBEncoding;
+
+const boxCommonMaterial = new THREE.MeshPhysicalMaterial( {
+	map: boxColorTexture,
+	normalMap: boxNormalTexture,
+	roughnessMap: boxRoughnessTexture,
+	metalness: 0,
+} );
+
+const boxTopMaterial = new THREE.MeshPhysicalMaterial( {
+	map: boxTopColorTexture,
+	normalMap: boxTopNormalTexture,
+	roughnessMap: boxTopRoughnessTexture,
+	metalness: 0,
+} );
+
+const boxSideMaterial = new THREE.MeshPhysicalMaterial( {
+	map: boxSideColorTexture,
+	normalMap: boxSideNormalTexture,
+	roughnessMap: boxSideRoughnessTexture,
+	metalness: 0,
+} );
+
+const boxMesh = new THREE.Mesh(
+	new THREE.BoxGeometry( 1, 1, 1 ),
+	[
+		boxSideMaterial, // posX
+		boxSideMaterial, // negX
+		boxTopMaterial, // posY
+		boxCommonMaterial, // negY
+		boxCommonMaterial, // posZ
+		boxCommonMaterial, // negZ
+	]
+);
+boxMesh.position.set( 0, .5, 0 );
+scene.add( boxMesh );
+
+</script>
+
+</body>
+</html>

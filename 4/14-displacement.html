@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0;}
+canvas {background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); }
+</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setClearColor( 0x000000, 0 );
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 100 );
+camera.position.set( 0, 1.5, 3 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+
+const light0 = new THREE.DirectionalLight(0xFFFFFF, 1);
+const light1 = new THREE.HemisphereLight( 0x443333, 0x332222 );
+light0.color.convertSRGBToLinear();
+light0.position.set( 1, 1, 1 ).normalize();
+light1.color.convertSRGBToLinear();
+light1.groundColor.convertSRGBToLinear();
+scene.add( light0, light1 );
+
+function animation() {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+// global env map
+new THREE.TextureLoader().load( './env-2.jpg', ( equirectangularMap ) => {
+
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	pmremGenerator.compileEquirectangularShader();
+	const envMapRenderTarget = pmremGenerator.fromEquirectangular( equirectangularMap );
+	envMapRenderTarget.texture.encoding = THREE.sRGBEncoding;
+	equirectangularMap.dispose();
+
+	scene.environment = envMapRenderTarget.texture;
+
+} );
+
+const bricksColorTexture = new THREE.TextureLoader().load( './bricks76/color.jpg' );
+bricksColorTexture.encoding = THREE.sRGBEncoding;
+const bricksNormalTexture = new THREE.TextureLoader().load( './bricks76/normal.jpg' );
+bricksNormalTexture.encoding = THREE.sRGBEncoding;
+const bricksAoTexture = new THREE.TextureLoader().load( './bricks76/ao.jpg' );
+bricksAoTexture.encoding = THREE.sRGBEncoding;
+const bricksDisplacementTexture = new THREE.TextureLoader().load( './bricks76/displacement.jpg' );
+bricksDisplacementTexture.encoding = THREE.sRGBEncoding;
+
+const mesh = new THREE.Mesh(
+	new THREE.PlaneGeometry( 5, 5, 128, 128 ),
+	new THREE.MeshPhysicalMaterial( {
+		map: bricksColorTexture,
+		normalMap: bricksNormalTexture,
+		metalness: 0,
+		roughness: 1,
+		aoMap: bricksAoTexture,
+		displacementMap: bricksDisplacementTexture,
+		displacementScale: 0.15,
+		displacementBias: 0,
+	} ),
+);
+mesh.rotation.x = - Math.PI / 2;
+scene.add( mesh );
+
+</script>
+
+</body>
+</html>

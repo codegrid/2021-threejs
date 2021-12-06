@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0;}
+canvas {background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); }
+</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setClearColor( 0x000000, 0 );
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+camera.position.set( 0, 1, 3 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+
+const gridHelper = new THREE.GridHelper( 5, 10 );
+scene.add( gridHelper );
+
+function animation() {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+
+const state = {
+	currentHitObjectName: null,
+};
+
+
+const hotSpot0 = new THREE.Mesh(
+	new THREE.SphereGeometry( .3, 16, 16 ),
+	new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: .75, transparent: true, } ),
+);
+hotSpot0.name = 'hotSpot0';
+hotSpot0.position.x = 1;
+scene.add( hotSpot0 );
+
+const hotSpot1 = new THREE.Mesh(
+	new THREE.SphereGeometry( .3, 16, 16 ),
+	new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: .75, transparent: true, } ),
+);
+hotSpot1.name = 'hotSpot1';
+hotSpot1.position.x = - 1;
+scene.add( hotSpot1 );
+
+
+const mouseCoord = new THREE.Vector2();
+const raycaster = new THREE.Raycaster();
+const rayTargets = [ hotSpot0, hotSpot1 ];
+
+const rayPick = () => {
+
+	raycaster.setFromCamera( mouseCoord, camera );
+	const intersectedObjects = raycaster.intersectObjects( rayTargets );
+
+	if ( intersectedObjects[ 0 ] ) {
+
+		renderer.domElement.style.cursor = 'pointer';
+		state.currentHitObjectName = intersectedObjects[ 0 ].object.name;
+
+	} else {
+
+		renderer.domElement.style.cursor = '';
+		state.currentHitObjectName = null;
+
+	}
+
+}
+
+document.addEventListener( 'mousemove', ( event ) => {
+
+	const elRect = renderer.domElement.getBoundingClientRect();
+	mouseCoord.set(
+		( ( event.clientX - elRect.left ) / elRect.width  ) *   2 - 1,
+		( ( event.clientY - elRect.top  ) / elRect.height ) * - 2 + 1,
+	);
+	rayPick();
+
+} );
+
+document.addEventListener( 'touchstart', ( event ) => {
+
+	const elRect = renderer.domElement.getBoundingClientRect();
+	mouseCoord.set(
+		( ( event.changedTouches[ 0 ].clientX - elRect.left ) / elRect.width  ) *   2 - 1,
+		( ( event.changedTouches[ 0 ].clientY - elRect.top  ) / elRect.height ) * - 2 + 1,
+	);
+	rayPick();
+
+} );
+
+renderer.domElement.addEventListener( 'click', () => {
+
+	if ( state.currentHitObjectName === 'hotSpot0' ) alert( '赤をクリック' );
+	if ( state.currentHitObjectName === 'hotSpot1' ) alert( '青をクリック' );
+
+} );
+
+</script>
+
+</body>
+</html>

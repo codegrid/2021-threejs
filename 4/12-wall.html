@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0;}
+canvas{background: linear-gradient( #c9d6ff, #e2e2e2);}
+</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setClearColor( 0x000000, 0 );
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 100 );
+camera.position.set( 0, 1, 2 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+controls.target.set( 0, 1, 0 );
+
+const light0 = new THREE.DirectionalLight(0xFFFFFF, 1);
+const light1 = new THREE.HemisphereLight( 0x443333, 0x332222 );
+light0.color.convertSRGBToLinear();
+light0.position.set( 1, 1, 1 ).normalize();
+light1.color.convertSRGBToLinear();
+light1.groundColor.convertSRGBToLinear();
+scene.add( light0, light1 );
+
+function animation() {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+// global env map
+new THREE.TextureLoader().load( './env-2.jpg', ( equirectangularMap ) => {
+
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	pmremGenerator.compileEquirectangularShader();
+	const envMapRenderTarget = pmremGenerator.fromEquirectangular( equirectangularMap );
+	envMapRenderTarget.texture.encoding = THREE.sRGBEncoding;
+	equirectangularMap.dispose();
+
+	scene.environment = envMapRenderTarget.texture;
+
+} );
+
+const floorColorTexture = new THREE.TextureLoader().load( './wood-floor/color.png' );
+floorColorTexture.encoding = THREE.sRGBEncoding;
+floorColorTexture.repeat.set( 2, 2 );
+floorColorTexture.wrapS = THREE.RepeatWrapping;
+floorColorTexture.wrapT = THREE.RepeatWrapping;
+const floorNormalTexture = new THREE.TextureLoader().load( './wood-floor/normal.png' );
+floorNormalTexture.encoding = THREE.sRGBEncoding;
+floorNormalTexture.repeat.set( 2, 2 );
+floorNormalTexture.wrapS = THREE.RepeatWrapping;
+floorNormalTexture.wrapT = THREE.RepeatWrapping;
+const floorRoughnessTexture = new THREE.TextureLoader().load( './wood-floor/roughness.png' );
+floorRoughnessTexture.encoding = THREE.sRGBEncoding;
+floorRoughnessTexture.repeat.set( 2, 2 );
+floorRoughnessTexture.wrapS = THREE.RepeatWrapping;
+floorRoughnessTexture.wrapT = THREE.RepeatWrapping;
+
+const floorMesh = new THREE.Mesh(
+	new THREE.PlaneGeometry( 5, 5 ),
+	new THREE.MeshPhysicalMaterial( {
+		map: floorColorTexture,
+		normalMap: floorNormalTexture,
+		roughnessMap: floorRoughnessTexture,
+		metalness: 0,
+	} ),
+);
+floorMesh.rotation.x = - Math.PI / 2;
+scene.add( floorMesh );
+
+const wallColorTexture = new THREE.TextureLoader().load( './bricks95/color.jpg' );
+wallColorTexture.encoding = THREE.sRGBEncoding;
+wallColorTexture.repeat.set( 5, 3 );
+wallColorTexture.wrapS = THREE.RepeatWrapping;
+wallColorTexture.wrapT = THREE.RepeatWrapping;
+const wallNormalTexture = new THREE.TextureLoader().load( './bricks95/normal.jpg' );
+wallNormalTexture.encoding = THREE.sRGBEncoding;
+wallNormalTexture.repeat.set( 5, 3 );
+wallNormalTexture.wrapS = THREE.RepeatWrapping;
+wallNormalTexture.wrapT = THREE.RepeatWrapping;
+const wallRoughnessTexture = new THREE.TextureLoader().load( './bricks95/roughness.jpg' );
+wallRoughnessTexture.encoding = THREE.sRGBEncoding;
+wallRoughnessTexture.repeat.set( 5, 3 );
+wallRoughnessTexture.wrapS = THREE.RepeatWrapping;
+wallRoughnessTexture.wrapT = THREE.RepeatWrapping;
+
+const wallMesh = new THREE.Mesh(
+	new THREE.PlaneGeometry( 5, 3 ),
+	new THREE.MeshPhysicalMaterial( {
+		map: wallColorTexture,
+		normalMap: wallNormalTexture,
+		roughnessMap: wallRoughnessTexture,
+		roughness: 1,
+	} ),
+);
+wallMesh.position.set( 0, 1.5, - 2.5 );
+scene.add( wallMesh );
+
+const wallMesh1 = wallMesh.clone();
+wallMesh1.rotation.y = Math.PI;
+wallMesh1.position.set( 0, 1.5, 2.5 );
+scene.add( wallMesh1 );
+
+const wallMesh2 = wallMesh.clone();
+wallMesh2.rotation.y = Math.PI / 2;
+wallMesh2.position.set( - 2.5, 1.5, 0 );
+scene.add( wallMesh2 );
+
+const wallMesh3 = wallMesh.clone();
+wallMesh3.rotation.y = - Math.PI / 2;
+wallMesh3.position.set( 2.5, 1.5, 0 );
+scene.add( wallMesh3 );
+
+</script>
+
+</body>
+</html>

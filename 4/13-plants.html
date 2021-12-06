@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0;}
+canvas{background: linear-gradient( #c9d6ff, #e2e2e2);}
+</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setClearColor( 0x000000, 0 );
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.1;
+renderer.physicallyCorrectLights = true;
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.01, 100 );
+camera.position.set( 0, .2, 1 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+
+const light0 = new THREE.DirectionalLight(0xFFFFFF, 1);
+const light1 = new THREE.HemisphereLight( 0x443333, 0x332222 );
+light0.color.convertSRGBToLinear();
+light0.position.set( 1, 1, 1 ).normalize();
+light1.color.convertSRGBToLinear();
+light1.groundColor.convertSRGBToLinear();
+scene.add( light0, light1 );
+
+function animation() {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+// global env map
+new THREE.TextureLoader().load( './env-2.jpg', ( equirectangularMap ) => {
+
+	const pmremGenerator = new THREE.PMREMGenerator( renderer );
+	pmremGenerator.compileEquirectangularShader();
+	const envMapRenderTarget = pmremGenerator.fromEquirectangular( equirectangularMap );
+	envMapRenderTarget.texture.encoding = THREE.sRGBEncoding;
+	equirectangularMap.dispose();
+
+	scene.environment = envMapRenderTarget.texture;
+
+} );
+
+const groundColorTexture = new THREE.TextureLoader().load( './ground/color.jpg' );
+groundColorTexture.encoding = THREE.sRGBEncoding;
+const groundNormalTexture = new THREE.TextureLoader().load( './ground/normal.jpg' );
+groundNormalTexture.encoding = THREE.sRGBEncoding;
+const groundRoughnessTexture = new THREE.TextureLoader().load( './ground/roughness.jpg' );
+groundRoughnessTexture.encoding = THREE.sRGBEncoding;
+
+const groundMesh = new THREE.Mesh(
+	new THREE.PlaneGeometry( 2, 2 ),
+	new THREE.MeshPhysicalMaterial( {
+		map: groundColorTexture,
+		normalMap: groundNormalTexture,
+		roughnessMap: groundRoughnessTexture,
+		metalness: 0,
+	} ),
+);
+groundMesh.rotation.x = - Math.PI / 2;
+scene.add( groundMesh );
+
+const plantsColorTexture = new THREE.TextureLoader().load( './plants/color.png' );
+plantsColorTexture.encoding = THREE.sRGBEncoding;
+const plantsNormalTexture = new THREE.TextureLoader().load( './plants/normal.png' );
+plantsNormalTexture.encoding = THREE.sRGBEncoding;
+const plantsAoTexture = new THREE.TextureLoader().load( './plants/ao.png' );
+plantsAoTexture.encoding = THREE.sRGBEncoding;
+
+const gizmo = new THREE.Group();
+scene.add( gizmo );
+
+const plantsMesh = new THREE.Mesh(
+	new THREE.PlaneGeometry( 0.8, 0.4 ),
+	new THREE.MeshPhysicalMaterial( {
+		map: plantsColorTexture,
+		aoMap: plantsAoTexture,
+		normalMap: plantsNormalTexture,
+		roughness: 1,
+		side: THREE.DoubleSide,
+		transparent: true,
+		alphaTest: 0.2,
+	} ),
+);
+plantsMesh.position.y = .1;
+scene.add( plantsMesh );
+
+const wireframe = new THREE.LineSegments(
+	new THREE.WireframeGeometry( plantsMesh.geometry ),
+	new THREE.LineBasicMaterial( { color: 0x000000, transparent: true, opacity: 0.5 } ),
+);
+wireframe.matrix.copy( plantsMesh.matrix );
+wireframe.position.copy( plantsMesh.position );
+wireframe.rotation.copy( plantsMesh.rotation );
+gizmo.add( wireframe );
+
+for ( let i = 1; i < 3; i ++ ) {
+
+	const plantsMeshClone = plantsMesh.clone();
+	plantsMeshClone.position.y = .1;
+	plantsMeshClone.rotation.y = ( Math.PI * 2 ) / ( 3 * i );
+	plantsMeshClone.updateMatrix();
+	scene.add( plantsMeshClone );
+
+	const wireframeClone = wireframe.clone();
+	wireframeClone.position.copy( plantsMeshClone.position );
+	wireframeClone.rotation.copy( plantsMeshClone.rotation );
+	gizmo.add( wireframeClone );
+
+}
+
+</script>
+
+</body>
+</html>

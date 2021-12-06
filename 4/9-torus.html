@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>body {margin: 0;}</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+import GUI from 'https://cdn.skypack.dev/lil-gui@0.14.0';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+camera.position.set( 0, 2, 6 );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+controls.autoRotate = true;
+
+function animation() {
+
+	controls.update();
+	renderer.render( scene, camera );
+
+}
+
+const mesh = new THREE.Mesh(
+	new THREE.TorusGeometry(),
+	new THREE.MeshBasicMaterial( { color: 0x666666 } )
+);
+scene.add( mesh );
+
+const wireframe = new THREE.LineSegments(
+	new THREE.WireframeGeometry( mesh.geometry ),
+	new THREE.LineBasicMaterial( { color: 0xffffff, transparent: true, opacity: 0.5 } ),
+);
+scene.add( wireframe );
+
+const geometryState = {
+	radius: 1,
+	tube: 0.4,
+	radialSegments: 8,
+	tubularSegments: 6,
+	arc: Math.PI * 2,
+};
+
+function updateGeometry() {
+
+	mesh.geometry.dispose();
+	mesh.geometry = new THREE.TorusGeometry(
+		geometryState.radius,
+		geometryState.tube,
+		geometryState.radialSegments,
+		geometryState.tubularSegments,
+		geometryState.arc,
+	);
+
+	wireframe.geometry.dispose();
+	wireframe.geometry = new THREE.WireframeGeometry( mesh.geometry );
+
+}
+
+const gui = new GUI();
+gui.add( geometryState, 'radius', .5, 4 ).onChange( updateGeometry );
+gui.add( geometryState, 'tube', .2, 4 ).onChange( updateGeometry );
+gui.add( geometryState, 'radialSegments', 2, 32 ).onChange( updateGeometry );
+gui.add( geometryState, 'tubularSegments', 3, 64 ).onChange( updateGeometry );
+gui.add( geometryState, 'arc', 1e-10, Math.PI * 2 ).onChange( updateGeometry );
+
+</script>
+
+</body>
+</html>
