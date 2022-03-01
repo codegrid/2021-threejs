@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width">
+<title>=^.^=</title>
+<style>
+body{
+  margin: 0;
+}
+canvas{
+  display: block;
+}
+.info{
+  position: absolute;
+}
+</style>
+</head>
+<body>
+<script src="three.min.js"></script>
+<script>
+var width  = window.innerWidth,
+    height = window.innerHeight,
+    clock  = new THREE.Clock(),
+    lookAt = new THREE.Vector3( 0, 3, 0 ),
+    scene,
+    camera,
+    renderer,
+    ambientLight,
+    directionalLight,
+    mesh,
+    loader = new THREE.JSONLoader(),
+    textureLoader = new THREE.TextureLoader(),
+    cubeTextureLoader = new THREE.CubeTextureLoader();
+
+scene = new THREE.Scene();
+
+camera = new THREE.PerspectiveCamera( 40, width / height, 1, 1000 );
+camera.position.set( 0, 3, 10 );
+
+renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setSize( width, height );
+document.body.appendChild( renderer.domElement );
+
+ambientLight = new THREE.AmbientLight( 0xffffff )
+scene.add( ambientLight );
+
+directionalLight = new THREE.DirectionalLight( 0xffffff );
+directionalLight.position.set( 0, 1, 0 ).normalize();
+scene.add( directionalLight );
+
+
+loader.load( 'grapple-girl/model.json', function( geometry, materials ) {
+
+  mesh = new THREE.Mesh(
+    geometry,
+    new THREE.MeshFaceMaterial( materials )
+  );
+
+  scene.add( mesh );
+
+} );
+
+
+( function renderLoop () {
+
+  var elapsed = clock.getElapsedTime();
+
+  requestAnimationFrame( renderLoop );
+  camera.position.set(
+    Math.sin( elapsed ) * 10,
+    3,
+    Math.cos( elapsed ) * 10
+  )
+  camera.lookAt( lookAt );
+  renderer.render( scene, camera );
+
+} )();
+</script>
+
+</body>
+</html>

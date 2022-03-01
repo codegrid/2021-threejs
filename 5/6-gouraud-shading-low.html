@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {
+	margin: 0;
+	display: flex;
+}
+canvas {background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); }
+</style>
+</head>
+<body>
+
+<script type="module">
+import * as THREE from 'https://cdn.skypack.dev/three@0.134.0/build/three.module.js';
+import { OrbitControls } from 'https://cdn.skypack.dev/three@0.134.0/examples/jsm/controls/OrbitControls.js';
+
+function setup( material ) {
+
+	const width = window.innerWidth / 2;
+	const height = window.innerHeight;
+
+	const renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+	renderer.setSize( width, height );
+	renderer.setAnimationLoop( animation );
+	document.body.appendChild( renderer.domElement );
+
+	const scene = new THREE.Scene();
+
+	const camera = new THREE.PerspectiveCamera( 60, width / height, 0.1, 100 );
+	camera.position.set( 0, 2, 3 );
+	camera.lookAt( 0, 0, 0 );
+
+	const controls = new OrbitControls( camera, renderer.domElement );
+
+	const dirLight = new THREE.DirectionalLight( 0xffffff, .5 );
+	const spotLight = new THREE.SpotLight( 0xffffff );
+	spotLight.position.set( 0, 1, 1 );
+	scene.add( dirLight, spotLight );
+
+	const mesh = new THREE.Mesh( new THREE.SphereGeometry( 1, 8, 4 ), material );
+	scene.add( mesh );
+
+	const wireframe = new THREE.LineSegments( new THREE.WireframeGeometry( mesh.geometry ) );
+	scene.add( wireframe );
+
+
+	function animation( elapsed ) {
+
+		mesh.rotation.y = elapsed * 0.0005;
+		wireframe.rotation.copy( mesh.rotation );
+		renderer.render( scene, camera );
+
+	}
+}
+
+setup( new THREE.MeshLambertMaterial( { color: 0xff0000 } ) );
+setup( new THREE.MeshPhongMaterial( { color: 0xff0000 } ) );
+
+</script>
+
+</body>
+</html>
