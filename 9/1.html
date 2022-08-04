@@ -145,6 +145,10 @@ const mesh3 = new THREE.Mesh(
 mesh3.position.x = 4.5;
 scene.add( mesh3 );
 
+const state = {
+	isShowBackground: false,
+}
+
 window.loadEnv = ( fileName ) => {
 
 	if ( ! fileName ) {
@@ -166,7 +170,7 @@ window.loadEnv = ( fileName ) => {
 
 		scene.environment = envMapRenderTarget.texture;
 
-		if ( !! scene.background ) {
+		if ( state.isShowBackground ) {
 
 			scene.background = scene.environment;
 
@@ -178,6 +182,7 @@ window.loadEnv = ( fileName ) => {
 
 window.showBackground = ( isShow ) => {
 
+	state.isShowBackground = isShow;
 	scene.background = isShow ? scene.environment : null;
 
 }
