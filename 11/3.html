@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="email=no,telephone=no,address=no">
+<title>=^.^=</title>
+<style>
+body {margin: 0; font-family: sans-serif;}
+</style>
+</head>
+<body>
+
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+<script type="importmap">
+	{
+		"imports": {
+			"three": "https://unpkg.com/three@0.142.0/build/three.module.js"
+		}
+	}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'https://unpkg.com/three@0.142.0/examples/jsm/controls/OrbitControls.js';
+
+const renderer = new THREE.WebGLRenderer( { antialias: true } );
+renderer.setSize( window.innerWidth, window.innerHeight );
+renderer.outputEncoding = THREE.sRGBEncoding;
+renderer.shadowMap.enabled = true;
+renderer.setAnimationLoop( animation );
+document.body.appendChild( renderer.domElement );
+
+const scene = new THREE.Scene();
+
+const camera = new THREE.PerspectiveCamera( 60, window.innerWidth / window.innerHeight, 0.1, 100 );
+camera.position.set( 0, 7, 15 );
+camera.lookAt( scene.position );
+
+const controls = new OrbitControls( camera, renderer.domElement );
+
+const light = new THREE.DirectionalLight( 0xffffff, 1 );
+light.position.set( 3, 3, 0 );
+light.castShadow = true; // default false
+scene.add( light );
+
+// ライトのシャドウ設定
+light.shadow.mapSize.width = 512; // default
+light.shadow.mapSize.height = 512; // default
+light.shadow.camera.near = 0.5; // default
+light.shadow.camera.far = 500; // default
+
+const helper = new THREE.CameraHelper( light.shadow.camera );
+scene.add( helper );
+
+scene.add( new THREE.AxesHelper( 3 ) );
+const mesh = new THREE.Mesh(
+	new THREE.TorusKnotGeometry(),
+	new THREE.MeshPhysicalMaterial( { color: 0xffffff } ),
+);
+mesh.castShadow = true; //default is false
+mesh.receiveShadow = false; //default
+
+scene.add( mesh );
+const plane = new THREE.Mesh(
+	new THREE.PlaneGeometry( 10, 10 ),
+	new THREE.MeshPhysicalMaterial( { color: 0xffffff } ),
+);
+plane.receiveShadow = true;
+plane.position.y = - 2;
+plane.rotation.x = - Math.PI / 2;
+scene.add( plane );
+
+
+function animation( elapsed ) {
+
+	mesh.rotation.y = elapsed * 0.05 * THREE.MathUtils.DEG2RAD;
+	renderer.render( scene, camera );
+
+}
+</script>
+
+</body>
+</html>
